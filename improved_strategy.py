@@ -248,6 +248,26 @@ def main():
     plt.legend()
     plt.show()
 
+def train_final_model():
+    """
+    Train the HMM model on your chosen 'primary' dataset, e.g., AAPL.
+    Then return the fitted model (and any parameters you might need).
+    """
+    # (1) Load primary dataset used for strategy development
+    df = yf.download("AAPL", start="2015-01-01", end="2023-01-01")
+
+    # (2) Compute features
+    df = compute_features(df)  
+
+    # (3) Fit HMM on the *entire* dataset (no train/test split here),
+    #     because we want a "final" model that we won't retrain on future data
+    X = df[['Return', 'Volatility', 'RSI']].values
+    model = hmm.GaussianHMM(
+        n_components=3, covariance_type="full", n_iter=100, random_state=42
+    )
+    model.fit(X)
+
+    return model
 
 if __name__ == "__main__":
     main()
