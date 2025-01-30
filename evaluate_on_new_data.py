@@ -15,7 +15,7 @@ def detect_frequency(file_name: str):
     """
     A quick way to guess if the CSV is weekly or monthly based on file name conventions.
     
-    - If "copper" is in the file name, treat it as weekly (since we know this is a special case).
+    - If "copper" is in the file name, treat it as weekly (since this is a special case with different date format).
     - If the file name ends with '_w.csv', treat as weekly.
     - If the file name ends with '_m.csv', treat as monthly.
     - Otherwise, default to daily.
@@ -34,13 +34,23 @@ def detect_frequency(file_name: str):
 
 
 def load_csv_as_df(file_path: str):
+    import os
     file_name = os.path.basename(file_path).lower()
     
-    # If it's copper, use dayfirst=True
     if "copper" in file_name:
-        df = pd.read_csv(file_path, parse_dates=['Date'], dayfirst=True)
+        # For copper, specify the delimiter
+        df = pd.read_csv(
+            file_path,
+            sep=';',              # <-- semicolon delimiter
+            parse_dates=['Date'], # ensure this matches the exact column name in your CSV
+            dayfirst=True
+        )
     else:
-        df = pd.read_csv(file_path, parse_dates=['Date'], dayfirst=False)
+        df = pd.read_csv(
+            file_path,
+            parse_dates=['Date'],
+            dayfirst=False
+        )
     
     df.set_index('Date', inplace=True)
     df.sort_index(inplace=True)
